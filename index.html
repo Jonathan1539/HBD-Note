@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Best Friend Notes</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden; /* Prevents scrollbars */
+      background-image: linear-gradient(to bottom, #f7cac9, #ffd7be); /* Warm beige background */
+      background-size: 100% 100vh;
+      background-repeat: no-repeat;
+    }
+
+    .note {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-family: sans-serif;
+      cursor: move; /* Add a move cursor to indicate draggability */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a subtle shadow to notes */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 250px; /* Set a fixed width for all notes */
+      height: 150px; /* Set a fixed height for all notes */
+      overflow: auto; /* Add a scrollbar if the content exceeds the height */
+    }
+  </style>
+</head>
+<body>
+  <div class="note" id="note1">
+    
+    <br>
+    
+    <br>
+    
+  </div>
+
+  <div class="note" id="note2">
+    
+    <br>
+    
+    <br>
+    
+  </div>
+
+  <div class="note" id="note3">
+    <span style="font-size: 100px; color: #ff69b4;">&#10084;</span>
+    <br>
+    <!--  -->
+  </div>
+
+  <script>
+    // Get all note elements
+    const notes = document.querySelectorAll('.note');
+
+    // Add event listeners to each note
+    notes.forEach((note) => {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
+
+      // Mouse down event
+      note.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+      });
+
+      // Mouse move event
+      document.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+          const deltaX = event.clientX - startX;
+          const deltaY = event.clientY - startY;
+          note.style.top = `${initialY + deltaY}px`;
+          note.style.left = `${initialX + deltaX}px`;
+        }
+      });
+
+      // Mouse up event
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+    });
+  </script>
+</body>
+</html>
