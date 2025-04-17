@@ -5,8 +5,8 @@
   <style>
     body {
       margin: 0;
-      overflow: hidden; /* Prevents scrollbars */
-      background-image: linear-gradient(to bottom, #f7cac9, #ffd7be); /* Warm beige background */
+      overflow: hidden;
+      background-image: linear-gradient(to bottom, #f7cac9, #ffd7be);
       background-size: 100% 100vh;
       background-repeat: no-repeat;
     }
@@ -17,94 +17,90 @@
       border: 1px solid #ccc;
       padding: 10px;
       font-family: sans-serif;
-      cursor: move; /* Add a move cursor to indicate draggability */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add a subtle shadow to notes */
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 250px; /* Set a fixed width for all notes */
-      height: 150px; /* Set a fixed height for all notes */
-      overflow: auto; /* Add a scrollbar if the content exceeds the height */
+      cursor: move;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      width: 250px;
+      height: 150px;
+      overflow: auto;
+    }
+
+    .center-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
     }
   </style>
 </head>
 <body>
-  <div class="note" id="note1">
-    
-    <br>
-    
-    <br>
-    
+  <div class="note" id="note1" style="top: 20px; left: 20px;">
+    <p>Note 1</p>
   </div>
 
-  <div class="note" id="note2">
-    
-    <br>
-    
-    <br>
-    
+  <div class="note" id="note2" style="top: 200px; left: 100px;">
+    <p>Note 2</p>
   </div>
 
-<!--   <div class="note" id="note3">
-    <span style="font-size: 100px; color: #ff69b4;">&#10084;</span>
-    <br>
-    <!--  -->
-<!--   </div> --> 
+  <div class="note" id="note3" style="top: 200px; left: 200px;">
+    <div class="center-content">
+      <span style="font-size: 100px; color: #ff69b4;">&#10084;</span>
+    </div>
+  </div>
 
-<script>
-  const notes = document.querySelectorAll('.note');
+  <script>
+    const notes = document.querySelectorAll('.note');
 
-  notes.forEach((note) => {
-    let isDragging = false;
-    let startX, startY, initialX, initialY;
+    notes.forEach((note) => {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
 
-    // Desktop (Mouse)
-    note.addEventListener('mousedown', (event) => {
-      isDragging = true;
-      startX = event.clientX;
-      startY = event.clientY;
-      initialX = note.offsetLeft;
-      initialY = note.offsetTop;
-    });
+      // Mouse
+      note.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+      });
 
-    document.addEventListener('mousemove', (event) => {
-      if (isDragging) {
-        const deltaX = event.clientX - startX;
-        const deltaY = event.clientY - startY;
-        note.style.left = `${initialX + deltaX}px`;
-        note.style.top = `${initialY + deltaY}px`;
-      }
-    });
+      document.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+          const deltaX = event.clientX - startX;
+          const deltaY = event.clientY - startY;
+          note.style.left = `${initialX + deltaX}px`;
+          note.style.top = `${initialY + deltaY}px`;
+        }
+      });
 
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-    });
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
 
-    // Mobile (Touch)
-    note.addEventListener('touchstart', (event) => {
-      isDragging = true;
-      const touch = event.touches[0];
-      startX = touch.clientX;
-      startY = touch.clientY;
-      initialX = note.offsetLeft;
-      initialY = note.offsetTop;
-    });
-
-    document.addEventListener('touchmove', (event) => {
-      if (isDragging) {
+      // Touch
+      note.addEventListener('touchstart', (event) => {
+        isDragging = true;
         const touch = event.touches[0];
-        const deltaX = touch.clientX - startX;
-        const deltaY = touch.clientY - startY;
-        note.style.left = `${initialX + deltaX}px`;
-        note.style.top = `${initialY + deltaY}px`;
-      }
-    });
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+      });
 
-    document.addEventListener('touchend', () => {
-      isDragging = false;
-    });
-  });
-</script>
+      document.addEventListener('touchmove', (event) => {
+        if (isDragging) {
+          const touch = event.touches[0];
+          const deltaX = touch.clientX - startX;
+          const deltaY = touch.clientY - startY;
+          note.style.left = `${initialX + deltaX}px`;
+          note.style.top = `${initialY + deltaY}px`;
+        }
+      });
 
+      document.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+    });
+  </script>
 </body>
 </html>
