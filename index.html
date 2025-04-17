@@ -51,39 +51,60 @@
     <!--  -->
 <!--   </div> --> 
 
-  <script>
-    // Get all note elements
-    const notes = document.querySelectorAll('.note');
+<script>
+  const notes = document.querySelectorAll('.note');
 
-    // Add event listeners to each note
-    notes.forEach((note) => {
-      let isDragging = false;
-      let startX, startY, initialX, initialY;
+  notes.forEach((note) => {
+    let isDragging = false;
+    let startX, startY, initialX, initialY;
 
-      // Mouse down event
-      note.addEventListener('mousedown', (event) => {
-        isDragging = true;
-        startX = event.clientX;
-        startY = event.clientY;
-        initialX = note.offsetLeft;
-        initialY = note.offsetTop;
-      });
-
-      // Mouse move event
-      document.addEventListener('mousemove', (event) => {
-        if (isDragging) {
-          const deltaX = event.clientX - startX;
-          const deltaY = event.clientY - startY;
-          note.style.top = `${initialY + deltaY}px`;
-          note.style.left = `${initialX + deltaX}px`;
-        }
-      });
-
-      // Mouse up event
-      document.addEventListener('mouseup', () => {
-        isDragging = false;
-      });
+    // Desktop (Mouse)
+    note.addEventListener('mousedown', (event) => {
+      isDragging = true;
+      startX = event.clientX;
+      startY = event.clientY;
+      initialX = note.offsetLeft;
+      initialY = note.offsetTop;
     });
-  </script>
+
+    document.addEventListener('mousemove', (event) => {
+      if (isDragging) {
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
+        note.style.left = `${initialX + deltaX}px`;
+        note.style.top = `${initialY + deltaY}px`;
+      }
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    // Mobile (Touch)
+    note.addEventListener('touchstart', (event) => {
+      isDragging = true;
+      const touch = event.touches[0];
+      startX = touch.clientX;
+      startY = touch.clientY;
+      initialX = note.offsetLeft;
+      initialY = note.offsetTop;
+    });
+
+    document.addEventListener('touchmove', (event) => {
+      if (isDragging) {
+        const touch = event.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        note.style.left = `${initialX + deltaX}px`;
+        note.style.top = `${initialY + deltaY}px`;
+      }
+    });
+
+    document.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+  });
+</script>
+
 </body>
 </html>
