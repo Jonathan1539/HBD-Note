@@ -4,7 +4,10 @@
   <meta charset="UTF-8" />
   <title>Happy Birthday</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <link href="https://fonts.googleapis.com/css2?family=Zeyada&display=swap" rel="stylesheet" />
+  
+  <!-- Link to Dancing Script Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
+
   <style>
     * { box-sizing: border-box; }
 
@@ -18,12 +21,12 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      font-family: 'Zeyada', cursive;
+      font-family: 'Dancing Script', cursive; /* Changed to Dancing Script */
     }
 
     .paper {
       position: absolute;
-      width: 300px;
+      width: 340px;
       min-height: 200px;
       max-width: 90vw;
       padding: 20px;
@@ -39,6 +42,8 @@
       left: 50%;
       top: 50%;
       overflow: hidden;
+      z-index: 1;
+      transition: left 0.3s ease, top 0.3s ease;
     }
 
     .paper.show { display: block; }
@@ -91,19 +96,21 @@
       background: pink;
       border: none;
       border-radius: 12px;
-      font-family: 'Zeyada', cursive;
+      font-family: 'Dancing Script', cursive; /* Changed to Dancing Script */
       z-index: 9999;
       cursor: pointer;
     }
 
-    /* Fix for birthday paper text */
     #birthday-paper p {
-      font-weight: bold;  /* Adds thickness to the text */
+      font-weight: bold;
     }
 
-    /* Fix for the other special message */
     .paper.image p {
-      font-weight: bold;  /* Adds thickness to the text */
+      font-weight: bold;
+    }
+
+    #birthday-paper {
+      z-index: 9999 !important;
     }
   </style>
 </head>
@@ -111,13 +118,14 @@
 
   <button id="startBtn">Tap to Start 🎉</button>
 
-  <div class="paper"><p>Drag the papers to move!</p></div>
+  <div class="paper"><p>Drag down each paper to reveal the next!</p></div>
   <div class="paper"><p>Welcome To My Creative World <span style="color: red;">❤️</span></p></div>
   <div class="paper"><p>As you know, you are my everything 😍</p></div>
-  <div class="paper image"><p>Today is very special day for your life and also for me 🥰</p></div>
+  <div class="paper"><p>You’re not just a part of my day—you are the reason my day feels complete</p></div>
+  <div class="paper"><p>Today is very special day for you and also for me 🥰</p></div>
 
   <div class="paper image" id="birthday-paper">
-    <p>Wishing you a very very Happy Birthday my cutie sweetie darshu! keep smile and be happy.... May this year be filled with success, growth, great moments, new opportunities, and strong connections God bless you 💗🥹🧿</p>
+    <p>Wishing you a very very Happy Birthday my cutie sweetie darshu! keep smile and be happy.... May this year be filled with success, growth, great moments, new opportunities, and strong connections. God bless you 💗🥹🧿</p>
   </div>
 
   <div class="paper image">
@@ -136,6 +144,7 @@
 
     startBtn.addEventListener('click', () => {
       papers[0].classList.add('show');
+      papers[0].style.zIndex = 1000;
       startBtn.remove();
     });
 
@@ -156,6 +165,7 @@
             origin: cfg.origin,
             ticks: 300,
             gravity: 0.4,
+            zIndex: 99999, // Ensure the confetti appears on top
           });
         }, i * 700);
       });
@@ -170,50 +180,74 @@
 
     observer.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
 
-    const enableDragging = (note, index) => {
+    const enableDragging = (paper, index) => {
       let isDragging = false;
-      let startX, startY, initialX, initialY;
+      let startX, startY, initX, initY;
 
       const onStart = (e) => {
         isDragging = true;
-        const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        startX = x;
-        startY = y;
-        initialX = note.offsetLeft;
-        initialY = note.offsetTop;
-        note.style.zIndex = Date.now();
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        startX = clientX;
+        startY = clientY;
+        initX = paper.offsetLeft;
+        initY = paper.offsetTop;
+
+        // Don't let anything go above the birthday paper
+        if (paper.id !== "birthday-paper") {
+          paper.style.zIndex = 1000 + index;
+        }
+
         e.preventDefault();
       };
 
       const onMove = (e) => {
         if (!isDragging) return;
-        const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        note.style.left = `${initialX + (x - startX)}px`;
-        note.style.top = `${initialY + (y - startY)}px`;
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        paper.style.left = `${initX + (clientX - startX)}px`;
+        paper.style.top = `${initY + (clientY - startY)}px`;
       };
 
       const onEnd = () => {
         if (isDragging) {
           isDragging = false;
-          const nextIndex = index + 1;
-          if (nextIndex < papers.length) {
-            papers[nextIndex].classList.add('show');
+
+          // Reset to normal z-index (but never override the birthday paper)
+          if (paper.id !== "birthday-paper") {
+            paper.style.zIndex = index;
+          }
+
+          const next = index + 1;
+          if (next < papers.length) {
+            const nextPaper = papers[next];
+            nextPaper.classList.add('show');
+
+            // Ensure birthday-paper always stays on top
+            if (nextPaper.id === "birthday-paper") {
+              nextPaper.style.zIndex = 9999;
+            } else {
+              nextPaper.style.zIndex = 1000 + next;
+            }
+
+            nextPaper.style.left = '50%';
+            nextPaper.style.top = '50%';
           }
         }
       };
 
-      note.addEventListener('mousedown', onStart);
+      paper.addEventListener('mousedown', onStart);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
-      note.addEventListener('touchstart', onStart, { passive: false });
+      paper.addEventListener('touchstart', onStart, { passive: false });
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend', onEnd);
     };
 
     papers.forEach((paper, index) => enableDragging(paper, index));
+
   </script>
 
 </body>
 </html>
+
