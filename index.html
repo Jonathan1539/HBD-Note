@@ -1,0 +1,292 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+
+  <title>Best Friend Notes</title>
+
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-image: linear-gradient(to bottom, #f7cac9, #ffd7be);
+      background-size: 100% 100vh;
+      background-repeat: no-repeat;
+    }
+
+    .note {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      font-family: sans-serif;
+      cursor: move;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      width: 250px;
+      height: 150px;
+      overflow: auto;
+    }
+
+    .center-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="note" id="note1" style="top: 20px; left: 20px;">
+    <p>Note 1</p>
+  </div>
+
+  <div class="note" id="note2" style="top: 200px; left: 100px;">
+    <p>Note 2</p>
+  </div>
+
+  <div class="note" id="note3" style="top: 200px; left: 200px;">
+    <div class="center-content">
+      <span style="font-size: 100px; color: #ff69b4;">&#10084;</span>
+    </div>
+  </div>
+
+  <script>
+    const notes = document.querySelectorAll('.note');
+
+    notes.forEach((note) => {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
+
+      const handleMouseDown = (event) => {
+        isDragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+      };
+
+      const handleMouseMove = (event) => {
+        if (isDragging) {
+          const deltaX = event.clientX - startX;
+          const deltaY = event.clientY - startY;
+          note.style.left = `${initialX + deltaX}px`;
+          note.style.top = `${initialY + deltaY}px`;
+        }
+      };
+
+      const handleMouseUp = () => {
+        isDragging = false;
+      };
+
+      const handleTouchStart = (event) => {
+        isDragging = true;
+        const touch = event.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+      };
+
+      const handleTouchMove = (event) => {
+        if (isDragging) {
+          const touch = event.touches[0];
+          const deltaX = touch.clientX - startX;
+          const deltaY = touch.clientY - startY;
+          note.style.left = `${initialX + deltaX}px`;
+          note.style.top = `${initialY + deltaY}px`;
+        }
+      };
+
+      const handleTouchEnd = () => {
+        isDragging = false;
+      };
+
+      note.addEventListener('mousedown', handleMouseDown);
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      note.addEventListener('touchstart', handleTouchStart);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
+    });
+  </script>
+  
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Best Friend Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Zeyada&display=swap" rel="stylesheet">
+  <style>
+    body {
+      height: 100vh;
+      margin: 0;
+      background-size: 1000px;
+      background-image: url("https://www.psdgraphics.com/wp-content/uploads/2022/01/white-math-paper-texture.jpg");
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .paper {
+      position: absolute;
+      background-image: url("https://i0.wp.com/textures.world/wp-content/uploads/2018/10/2-Millimeter-Paper-Background-copy.jpg?ssl=1");
+      background-size: 500px;
+      padding: 20px 100px;
+      transform: rotateZ(-5deg);
+      box-shadow: 1px 15px 20px rgba(0, 0, 0, 0.5);
+      touch-action: none;
+    }
+
+    .paper.heart {
+      width: 200px;
+      height: 200px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .paper.heart::after {
+      content: "";
+      background-image: url("https://cdn.pixabay.com/photo/2016/03/31/19/25/cartoon-1294994__340.png");
+      background-size: 150px;
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.6;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .paper.image {
+      padding: 10px;
+    }
+
+    .paper.image p {
+      font-size: 30px;
+    }
+
+    .paper img {
+      max-height: 200px;
+      width: 100%;
+      user-select: none;
+    }
+
+    p {
+      font-family: 'Zeyada', cursive;
+      font-size: 50px;
+      color: rgb(0, 0, 100);
+      opacity: 0.75;
+      user-select: none;
+      margin: 5px 0;
+    }
+
+    .paper.red p {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="paper heart"></div>
+
+  <div class="paper image">
+    <p>and I fallen in</p>
+    <p>Love with You 😍</p>
+    <img src="https://iili.io/HSzXpzg.jpg" alt="Love Image 1" />
+  </div>
+
+  <div class="paper image">
+    <img src="https://iili.io/HSzXbmF.jpg" alt="Love Image 2" />
+  </div>
+
+  <div class="paper image">
+    <p>How can be</p>
+    <p>someone so cute ❤️</p>
+    <img src="https://iili.io/HSzXyXa.jpg" alt="Love Image 3" />
+  </div>
+
+  <div class="paper">
+    <p>and My Favorite</p>
+    <p>Person 😍</p>
+  </div>
+
+  <div class="paper">
+    <p>You are Cute</p>
+    <p>Amazing <span style="color: red;">❤️</span></p>
+  </div>
+
+  <div class="paper">
+    <p>Drag the papers to move!</p>
+  </div>
+
+  <script>
+    const papers = document.querySelectorAll('.paper');
+
+    papers.forEach((note) => {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
+
+      const onMouseDown = (event) => {
+        isDragging = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+        note.style.zIndex = parseInt(Date.now() / 1000);
+      };
+
+      const onMouseMove = (event) => {
+        if (!isDragging) return;
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
+        note.style.left = `${initialX + deltaX}px`;
+        note.style.top = `${initialY + deltaY}px`;
+      };
+
+      const onMouseUp = () => isDragging = false;
+
+      const onTouchStart = (event) => {
+        isDragging = true;
+        const touch = event.touches[0];
+        startX = touch.clientX;
+        startY = touch.clientY;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+        note.style.zIndex = parseInt(Date.now() / 1000);
+      };
+
+      const onTouchMove = (event) => {
+        if (!isDragging) return;
+        const touch = event.touches[0];
+        const deltaX = touch.clientX - startX;
+        const deltaY = touch.clientY - startY;
+        note.style.left = `${initialX + deltaX}px`;
+        note.style.top = `${initialY + deltaY}px`;
+      };
+
+      const onTouchEnd = () => isDragging = false;
+
+      note.addEventListener('mousedown', onMouseDown);
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+
+      note.addEventListener('touchstart', onTouchStart);
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+      document.addEventListener('touchend', onTouchEnd);
+    });
+  </script>
+
+</body>
+</html>
+
+
+ 
