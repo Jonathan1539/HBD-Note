@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <title>Happy Birthday</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  
-  <!-- Link to Dancing Script Font -->
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
-
   <style>
     * { box-sizing: border-box; }
 
@@ -21,7 +18,7 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      font-family: 'Dancing Script', cursive; /* Changed to Dancing Script */
+      font-family: 'Dancing Script', cursive;
     }
 
     .paper {
@@ -96,21 +93,13 @@
       background: pink;
       border: none;
       border-radius: 12px;
-      font-family: 'Dancing Script', cursive; /* Changed to Dancing Script */
+      font-family: 'Dancing Script', cursive;
       z-index: 9999;
       cursor: pointer;
     }
 
-    #birthday-paper p {
+    #birthday-paper p, .paper.image p {
       font-weight: bold;
-    }
-
-    .paper.image p {
-      font-weight: bold;
-    }
-
-    #birthday-paper {
-      z-index: 9999 !important;
     }
   </style>
 </head>
@@ -125,7 +114,7 @@
   <div class="paper"><p>Today is very special day for you and also for me 🥰</p></div>
 
   <div class="paper image" id="birthday-paper">
-    <p>Wishing you a very very Happy Birthday my cutie sweetie darshu! keep smile and be happy.... May this year be filled with success, growth, great moments, new opportunities, and strong connections. God bless you 💗🥹🧿</p>
+    <p>Wishing you a very very Happy Birthday my cutie sweetie darshu! Keep smiling and be happy... May this year be filled with success, growth, great moments, new opportunities, and strong connections. God bless you 💗🥹🧿</p>
   </div>
 
   <div class="paper image">
@@ -138,63 +127,107 @@
 
   <script>
     const papers = document.querySelectorAll('.paper');
+    const birthdayPaper = document.getElementById('birthday-paper');
     const startBtn = document.getElementById('startBtn');
-    let currentIndex = 0;
-  
+    let celebrationTriggered = false;
+
+    // Start button logic
     startBtn.addEventListener('click', () => {
       papers[0].classList.add('show');
-      papers[0].style.zIndex = 1000;
       startBtn.remove();
     });
-  
+
+    // Confetti logic
+    const configs = [
+      { angle: 90, origin: { x: 0.5, y: 0.9 } },
+      { angle: 270, origin: { x: 0.5, y: 0 } },
+      { angle: 180, origin: { x: 1.1, y: 0.5 } },
+      { angle: 360, origin: { x: -0.1, y: 0.5 } },
+    ];
+
+    function launchConfetti() {
+      configs.forEach((cfg, i) => {
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            angle: cfg.angle,
+            origin: cfg.origin,
+            ticks: 300,
+            gravity: 0.4,
+            zIndex: 9999
+          });
+        }, i * 700);
+      });
+    }
+
+    const observer = new MutationObserver(() => {
+      if (birthdayPaper.classList.contains('show') && !celebrationTriggered) {
+        celebrationTriggered = true;
+        launchConfetti();
+      }
+    });
+
+    observer.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
+
+    // Enable dragging for each paper
     const enableDragging = (paper, index) => {
       let isDragging = false;
       let startX, startY, initX, initY;
-  
+      let nextRevealed = false;
+
+      const threshold = 50;  // Threshold to reveal next paper (in pixels)
+
       const onStart = (e) => {
         isDragging = true;
+        nextRevealed = false;
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         startX = clientX;
         startY = clientY;
         initX = paper.offsetLeft;
         initY = paper.offsetTop;
-  
-        // Ensure the current paper stays on top
-        paper.style.zIndex = 1000 + index;
+
+        paper.style.zIndex = 500 + index;  // Send current paper to background
+
         e.preventDefault();
       };
-  
+
       const onMove = (e) => {
         if (!isDragging) return;
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-        paper.style.left = `${initX + (clientX - startX)}px`;
-        paper.style.top = `${initY + (clientY - startY)}px`;
+        const deltaX = clientX - startX;
+        const deltaY = clientY - startY;
+
+        paper.style.left = `${initX + deltaX}px`;
+        paper.style.top = `${initY + deltaY}px`;
       };
-  
+
       const onEnd = () => {
-        if (isDragging) {
-          isDragging = false;
-  
-          // Check if the paper is dragged enough to trigger the next one
-          if (Math.abs(paper.offsetTop) > 100 || Math.abs(paper.offsetLeft) > 100) {
-            // Show the next paper
-            const nextIndex = index + 1;
-            if (nextIndex < papers.length) {
+        if (!isDragging) return;
+        isDragging = false;
+
+        // Check if the paper has been dragged enough to show the next paper
+        const deltaX = paper.offsetLeft - initX;
+        const deltaY = paper.offsetTop - initY;
+        
+        if (!nextRevealed && (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold)) {
+          nextRevealed = true;
+          const nextIndex = index + 1;
+          if (nextIndex < papers.length) {
+            // Delay the appearance of the next paper to make it smoother
+            setTimeout(() => {
               const nextPaper = papers[nextIndex];
               nextPaper.classList.add('show');
               nextPaper.style.zIndex = 1000 + nextIndex;
               nextPaper.style.left = '50%';
               nextPaper.style.top = '50%';
-            }
+            }, 200); // Add delay before showing the next paper
           }
-  
-          // Reset z-index for the current paper
-          paper.style.zIndex = index;
         }
       };
-  
+
       paper.addEventListener('mousedown', onStart);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
@@ -202,9 +235,9 @@
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend', onEnd);
     };
-  
+
     papers.forEach((paper, index) => enableDragging(paper, index));
   </script>
-  
+
 </body>
 </html>
