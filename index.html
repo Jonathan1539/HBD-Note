@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <title>Happy Birthday</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link href="https://fonts.googleapis.com/css2?family=Zeyada&display=swap" rel="stylesheet" />
   <style>
+    * { box-sizing: border-box; }
+
     body {
       height: 100vh;
       margin: 0;
@@ -16,24 +18,30 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      font-family: 'Zeyada', cursive;
     }
 
     .paper {
       position: absolute;
+      width: 300px;
+      min-height: 200px;
+      max-width: 90vw;
+      padding: 20px;
       background-image: url("https://i0.wp.com/textures.world/wp-content/uploads/2018/10/2-Millimeter-Paper-Background-copy.jpg?ssl=1");
-      background-size: 500px;
-      padding: 20px 100px;
+      background-size: cover;
+      background-repeat: no-repeat;
+      border-radius: 8px;
       transform: translate(-50%, -50%) rotateZ(-5deg);
       box-shadow: 1px 15px 20px rgba(0, 0, 0, 0.5);
       touch-action: none;
+      user-select: none;
       display: none;
       left: 50%;
       top: 50%;
+      overflow: hidden;
     }
 
-    .paper.show {
-      display: block;
-    }
+    .paper.show { display: block; }
 
     .paper.heart {
       width: 200px;
@@ -50,28 +58,20 @@
       background-position: center;
       opacity: 0.6;
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
     }
 
-    .paper.image {
-      padding: 10px;
-    }
-
-    .paper.image p {
-      font-size: 30px;
-    }
+    .paper.image { padding: 10px; }
+    .paper.image p { font-size: 30px; }
 
     .paper img {
-      max-height: 200px;
+      max-height: 500px;
       width: 100%;
+      object-fit: cover;
       user-select: none;
     }
 
     p {
-      font-family: 'Zeyada', cursive;
       font-size: 50px;
       color: rgb(0, 0, 100);
       opacity: 0.75;
@@ -79,9 +79,7 @@
       margin: 5px 0;
     }
 
-    .paper.red p {
-      color: red;
-    }
+    .paper.red p { color: red; }
 
     #startBtn {
       position: absolute;
@@ -113,41 +111,32 @@
   </div>
 
   <div class="paper image">
-    <img src="https://iili.io/HSzXbmF.jpg" alt="Love Image 2" />
+    <img src="new.png" alt="Love Image 2" />
   </div>
 
   <div class="paper heart"></div>
-
-  <audio id="dragSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_2fe8d9e027.mp3" preload="auto"></audio>
-  <audio id="popSound" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_45f8d0b387.mp3" preload="auto"></audio>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     const papers = document.querySelectorAll('.paper');
-    const dragSound = document.getElementById('dragSound');
-    const popSound = document.getElementById('popSound');
     const birthdayPaper = document.getElementById('birthday-paper');
     const startBtn = document.getElementById('startBtn');
-
     let celebrationTriggered = false;
 
     startBtn.addEventListener('click', () => {
-      dragSound.play().catch(() => {});
-      popSound.play().catch(() => {});
-      dragSound.pause();
-      popSound.pause();
       papers[0].classList.add('show');
       startBtn.remove();
     });
 
     const configs = [
+      { angle: 90, origin: { x: 0.5, y: 0.9 } },
       { angle: 270, origin: { x: 0.5, y: 0 } },
-      { angle: 360, origin: { x: 0.1, y: 0.5 } },
-      { angle: 180, origin: { x: 0.8, y: 0.5 } },
+      { angle: 180, origin: { x: 1.1, y: 0.5 } },
+      { angle: 360, origin: { x: -0.1, y: 0.5 } },
     ];
 
-    function launchConfettiWithSound() {
+    function launchConfetti() {
       configs.forEach((cfg, i) => {
         setTimeout(() => {
           confetti({
@@ -158,8 +147,6 @@
             ticks: 300,
             gravity: 0.4,
           });
-          popSound.currentTime = 0;
-          popSound.play();
         }, i * 700);
       });
     }
@@ -167,7 +154,7 @@
     const observer = new MutationObserver(() => {
       if (birthdayPaper.classList.contains('show') && !celebrationTriggered) {
         celebrationTriggered = true;
-        launchConfettiWithSound();
+        launchConfetti();
       }
     });
 
@@ -186,8 +173,7 @@
         initialX = note.offsetLeft;
         initialY = note.offsetTop;
         note.style.zIndex = Date.now();
-        dragSound.currentTime = 0;
-        dragSound.play();
+        e.preventDefault();
       };
 
       const onMove = (e) => {
@@ -211,8 +197,7 @@
       note.addEventListener('mousedown', onStart);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
-
-      note.addEventListener('touchstart', onStart);
+      note.addEventListener('touchstart', onStart, { passive: false });
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend', onEnd);
     };
