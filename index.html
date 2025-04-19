@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>happy Birthday</title>
+  <title>Happy Birthday</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Zeyada&display=swap" rel="stylesheet" />
   <style>
@@ -123,104 +123,102 @@
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<script>
-  const papers = document.querySelectorAll('.paper');
-  const dragSound = document.getElementById('dragSound');
-  const popSound = document.getElementById('popSound');
-  const birthdayPaper = document.getElementById('birthday-paper');
-  const startBtn = document.getElementById('startBtn');
+  <script>
+    const papers = document.querySelectorAll('.paper');
+    const dragSound = document.getElementById('dragSound');
+    const popSound = document.getElementById('popSound');
+    const birthdayPaper = document.getElementById('birthday-paper');
+    const startBtn = document.getElementById('startBtn');
 
-  let celebrationTriggered = false;
+    let celebrationTriggered = false;
 
-  startBtn.addEventListener('click', () => {
-    dragSound.play().catch(() => {});
-    popSound.play().catch(() => {});
-    dragSound.pause();
-    popSound.pause();
-    papers[0].classList.add('show');
-    startBtn.remove();
-  });
+    startBtn.addEventListener('click', () => {
+      dragSound.play().catch(() => {});
+      popSound.play().catch(() => {});
+      dragSound.pause();
+      popSound.pause();
+      papers[0].classList.add('show');
+      startBtn.remove();
+    });
 
-  function launchConfettiWithSound() {
     const configs = [
-      { angle: 0, origin: { x: 0, y: 0.5 } },     // Left
-      { angle: 180, origin: { x: 1, y: 0.5 } },   // Right
-      { angle: 90, origin: { x: 0.5, y: 0 } },    // Top
-      { angle: 270, origin: { x: 0.5, y: 1 } }    // Bottom
+      { angle: 270, origin: { x: 0.5, y: 0 } },
+      { angle: 360, origin: { x: 0.1, y: 0.5 } },
+      { angle: 180, origin: { x: 0.8, y: 0.5 } },
     ];
 
-    configs.forEach((cfg, i) => {
-      setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          angle: cfg.angle,
-          origin: cfg.origin,
-          ticks: 300,
-          gravity: 0.4,
-        });
-        popSound.currentTime = 0;
-        popSound.play();
-      }, i * 700); // slight delay between bursts
-    });
-  }
-
-  // 👀 Watch for birthday paper to appear
-  const observer = new MutationObserver(() => {
-    if (birthdayPaper.classList.contains('show') && !celebrationTriggered) {
-      celebrationTriggered = true;
-      launchConfettiWithSound();
+    function launchConfettiWithSound() {
+      configs.forEach((cfg, i) => {
+        setTimeout(() => {
+          confetti({
+            particleCount: 100,
+            spread: 70,
+            angle: cfg.angle,
+            origin: cfg.origin,
+            ticks: 300,
+            gravity: 0.4,
+          });
+          popSound.currentTime = 0;
+          popSound.play();
+        }, i * 700);
+      });
     }
-  });
 
-  observer.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
-
-  const enableDragging = (note, index) => {
-    let isDragging = false;
-    let startX, startY, initialX, initialY;
-
-    const onStart = (e) => {
-      isDragging = true;
-      const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-      const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-      startX = x;
-      startY = y;
-      initialX = note.offsetLeft;
-      initialY = note.offsetTop;
-      note.style.zIndex = Date.now();
-      dragSound.currentTime = 0;
-      dragSound.play();
-    };
-
-    const onMove = (e) => {
-      if (!isDragging) return;
-      const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-      const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-      note.style.left = `${initialX + (x - startX)}px`;
-      note.style.top = `${initialY + (y - startY)}px`;
-    };
-
-    const onEnd = () => {
-      if (isDragging) {
-        isDragging = false;
-        const nextIndex = index + 1;
-        if (nextIndex < papers.length) {
-          papers[nextIndex].classList.add('show');
-        }
+    const observer = new MutationObserver(() => {
+      if (birthdayPaper.classList.contains('show') && !celebrationTriggered) {
+        celebrationTriggered = true;
+        launchConfettiWithSound();
       }
+    });
+
+    observer.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
+
+    const enableDragging = (note, index) => {
+      let isDragging = false;
+      let startX, startY, initialX, initialY;
+
+      const onStart = (e) => {
+        isDragging = true;
+        const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        startX = x;
+        startY = y;
+        initialX = note.offsetLeft;
+        initialY = note.offsetTop;
+        note.style.zIndex = Date.now();
+        dragSound.currentTime = 0;
+        dragSound.play();
+      };
+
+      const onMove = (e) => {
+        if (!isDragging) return;
+        const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        note.style.left = `${initialX + (x - startX)}px`;
+        note.style.top = `${initialY + (y - startY)}px`;
+      };
+
+      const onEnd = () => {
+        if (isDragging) {
+          isDragging = false;
+          const nextIndex = index + 1;
+          if (nextIndex < papers.length) {
+            papers[nextIndex].classList.add('show');
+          }
+        }
+      };
+
+      note.addEventListener('mousedown', onStart);
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onEnd);
+
+      note.addEventListener('touchstart', onStart);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd);
     };
 
-    note.addEventListener('mousedown', onStart);
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onEnd);
-
-    note.addEventListener('touchstart', onStart);
-    document.addEventListener('touchmove', onMove, { passive: false });
-    document.addEventListener('touchend', onEnd);
-  };
-
-  papers.forEach((paper, index) => enableDragging(paper, index));
-</script>
+    papers.forEach((paper, index) => enableDragging(paper, index));
+  </script>
 
 </body>
 </html>
