@@ -6,9 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet" />
   <style>
-    * { 
-      box-sizing: border-box; 
-    }
+    * { box-sizing: border-box; }
 
     body {
       height: 100vh;
@@ -39,28 +37,26 @@
       display: none;
       left: 50%;
       top: 50%;
-      transform: translate(-50%, -50%) rotateZ(-5deg); /* Start centered */
+      transform: translate(-50%, -50%) rotateZ(-5deg);
       z-index: 1;
-      opacity: 0; /* Start with opacity 0 */
-      animation: paperAnimation 2s ease-in-out forwards; /* Animation for smooth transition */
+      opacity: 0;
+      animation: paperAnimation 2s ease-in-out forwards;
     }
 
-    .paper.show { 
-      display: block; 
-    }
+    .paper.show { display: block; }
 
     .paper.heart {
       width: 200px;
       height: 200px;
       padding: 0;
       border-radius: 50%;
-      opacity: 0; /* Start with opacity 0 */
+      opacity: 0;
       align-items: center;
       justify-content: center;
-      animation: heartAnimation 2s ease-in-out forwards; /* Animation for heart paper */
-      left: 50%; /* Center horizontally */
-      top: 50%;  /* Center vertically */
-      transform: translate(-50%, -50%); /* Center correctly */
+      animation: heartAnimation 2s ease-in-out forwards;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
     }
 
     .paper.heart::after {
@@ -113,36 +109,25 @@
       font-weight: bold;
     }
 
-    /* Keyframes for paper animation */
     @keyframes paperAnimation {
       0% {
         opacity: 0;
-        transform: translate(-50%, -50%) rotateZ(-5deg) translateY(-500px);  /* Start from the top */
+        transform: translate(-50%, -50%) rotateZ(-5deg) translateY(-500px);
       }
       50% {
         opacity: 1;
-        transform: translate(-50%, -50%) rotateZ(5deg) translateY(50px); /* Middle drop */
+        transform: translate(-50%, -50%) rotateZ(5deg) translateY(50px);
       }
       100% {
         opacity: 1;
-        transform: translate(-50%, -50%) rotateZ(0deg) translateY(0); /* End at center */
+        transform: translate(-50%, -50%) rotateZ(0deg) translateY(0);
       }
     }
 
-    /* Keyframes for heart animation */
     @keyframes heartAnimation {
-      0% {
-        opacity: 0;
-        transform: scale(0.5);  /* Start small */
-      }
-      50% {
-        opacity: 1;
-        transform: scale(1.2);  /* Slightly grow the heart */
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);  /* Final size is normal */
-      }
+      0% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
@@ -166,20 +151,26 @@
 
   <div class="paper heart"></div>
 
+  <!-- Audio Element -->
+  <audio id="birthday-audio" preload="auto">
+    <source src="https://www.chosic.com/wp-content/uploads/2021/11/Good_Morning_to_All(chosic.com).mp3" type="audio/mpeg">
+  </audio>
+
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     const papers = document.querySelectorAll('.paper');
     const birthdayPaper = document.getElementById('birthday-paper');
     const startBtn = document.getElementById('startBtn');
+    const birthdayAudio = document.getElementById('birthday-audio');
     let celebrationTriggered = false;
-  
+
     // Start button logic
     startBtn.addEventListener('click', () => {
       papers[0].classList.add('show');
       startBtn.remove();
     });
-  
+
     // Confetti logic
     const configs = [
       { angle: 90, origin: { x: 0.5, y: 0.9 } },
@@ -187,7 +178,7 @@
       { angle: 180, origin: { x: 1.1, y: 0.5 } },
       { angle: 360, origin: { x: -0.1, y: 0.5 } },
     ];
-  
+
     function launchConfetti() {
       configs.forEach((cfg, i) => {
         setTimeout(() => {
@@ -203,24 +194,28 @@
         }, i * 700);
       });
     }
-  
+
+    // Observe when birthday paper is shown
     const observer = new MutationObserver(() => {
       if (birthdayPaper.classList.contains('show') && !celebrationTriggered) {
         celebrationTriggered = true;
         launchConfetti();
+        birthdayAudio.play().catch(err => {
+          console.warn('Autoplay failed:', err);
+        });
       }
     });
-  
+
     observer.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
-  
-    // Enable dragging for each paper
+
+    // Drag logic
     const enableDragging = (paper, index) => {
       let isDragging = false;
       let startX, startY, initX, initY;
       let nextRevealed = false;
-  
-      const threshold = 50;  // Threshold to reveal next paper (in pixels)
-  
+
+      const threshold = 50;
+
       const onStart = (e) => {
         isDragging = true;
         nextRevealed = false;
@@ -230,22 +225,21 @@
         startY = clientY;
         initX = paper.offsetLeft;
         initY = paper.offsetTop;
-  
-        paper.style.zIndex = 500 + index;  // Send current paper to background
+
+        paper.style.zIndex = 500 + index;
         e.preventDefault();
       };
-  
+
       const onMove = (e) => {
         if (!isDragging) return;
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         const deltaX = clientX - startX;
         const deltaY = clientY - startY;
-  
+
         paper.style.left = `${initX + deltaX}px`;
         paper.style.top = `${initY + deltaY}px`;
-  
-        // Check if the paper has been dragged enough to show the next paper
+
         if (!nextRevealed && (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold)) {
           nextRevealed = true;
           const nextIndex = index + 1;
@@ -258,12 +252,12 @@
           }
         }
       };
-  
+
       const onEnd = () => {
         if (!isDragging) return;
         isDragging = false;
       };
-  
+
       paper.addEventListener('mousedown', onStart);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
@@ -271,9 +265,8 @@
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend', onEnd);
     };
-  
+
     papers.forEach((paper, index) => enableDragging(paper, index));
   </script>
-
 </body>
 </html>
