@@ -163,15 +163,8 @@
     const birthdayPaper = document.getElementById('birthday-paper');
     const startBtn = document.getElementById('startBtn');
     const birthdayAudio = document.getElementById('birthday-audio');
-    let celebrationTriggered = false;
+    let hasCelebrated = false;
 
-    // Start button logic
-    startBtn.addEventListener('click', () => {
-      papers[0].classList.add('show');
-      startBtn.remove();
-    });
-
-    // Confetti logic
     const configs = [
       { angle: 90, origin: { x: 0.5, y: 0.9 } },
       { angle: 270, origin: { x: 0.5, y: 0 } },
@@ -195,20 +188,19 @@
       });
     }
 
-    // Observe when birthday paper is shown
-    const observer = new MutationObserver(() => {
-      if (birthdayPaper.classList.contains('show') && !celebrationTriggered) {
-        celebrationTriggered = true;
+    function triggerCelebration() {
+      if (!hasCelebrated) {
+        hasCelebrated = true;
+        birthdayAudio.play().catch(err => console.warn("Audio error:", err));
         launchConfetti();
-        birthdayAudio.play().catch(err => {
-          console.warn('Autoplay failed:', err);
-        });
       }
+    }
+
+    startBtn.addEventListener('click', () => {
+      papers[0].classList.add('show');
+      startBtn.remove();
     });
 
-    observer.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
-
-    // Drag logic
     const enableDragging = (paper, index) => {
       let isDragging = false;
       let startX, startY, initX, initY;
@@ -249,6 +241,11 @@
             nextPaper.style.zIndex = 1000 + nextIndex;
             nextPaper.style.left = '50%';
             nextPaper.style.top = '50%';
+
+            // Check if it's the birthday paper
+            if (nextPaper.id === 'birthday-paper') {
+              triggerCelebration();
+            }
           }
         }
       };
