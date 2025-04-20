@@ -129,6 +129,14 @@
       50% { opacity: 1; transform: scale(1.2); }
       100% { opacity: 1; transform: scale(1); }
     }
+
+    #heartCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9998;
+    }
   </style>
 </head>
 <body>
@@ -151,6 +159,8 @@
 
   <div class="paper heart"></div>
 
+  <canvas id="heartCanvas"></canvas>
+
   <!-- Audio Element -->
   <audio id="birthday-audio" preload="auto">
     <source src="https://www.chosic.com/wp-content/uploads/2021/11/Good_Morning_to_All(chosic.com).mp3" type="audio/mpeg">
@@ -160,18 +170,27 @@
 
   <script>
     const papers = document.querySelectorAll('.paper');
-    const birthdayPaper = document.getElementById('birthday-paper');
     const startBtn = document.getElementById('startBtn');
     const birthdayAudio = document.getElementById('birthday-audio');
-    let hasCelebrated = false;
-
+    const heartCanvas = document.getElementById('heartCanvas');
+  
+    let confettiTriggered = false;
+    let heartEffectTriggered = false;
+  
+    // Start the first paper
+    startBtn.addEventListener('click', () => {
+      papers[0].classList.add('show');
+      startBtn.remove();
+    });
+  
+    // Confetti logic
     const configs = [
       { angle: 90, origin: { x: 0.5, y: 0.9 } },
       { angle: 270, origin: { x: 0.5, y: 0 } },
       { angle: 180, origin: { x: 1.1, y: 0.5 } },
       { angle: 360, origin: { x: -0.1, y: 0.5 } },
     ];
-
+  
     function launchConfetti() {
       configs.forEach((cfg, i) => {
         setTimeout(() => {
@@ -187,27 +206,73 @@
         }, i * 700);
       });
     }
-
-    function triggerCelebration() {
-      if (!hasCelebrated) {
-        hasCelebrated = true;
-        birthdayAudio.play().catch(err => console.warn("Audio error:", err));
-        launchConfetti();
+  
+    // Heart animation logic
+    function drawHearts() {
+      const ctx = heartCanvas.getContext('2d');
+      const hearts = [];
+  
+      for (let i = 0; i < 30; i++) {
+        hearts.push({
+          x: Math.random() * window.innerWidth,
+          y: window.innerHeight + Math.random() * 100,
+          size: Math.random() * 20 + 10,
+          speed: Math.random() * 1 + 0.5,
+          opacity: Math.random() * 0.5 + 0.5
+        });
       }
+  
+      function animate() {
+        ctx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+        hearts.forEach(h => {
+          h.y -= h.speed;
+          ctx.globalAlpha = h.opacity;
+          ctx.fillStyle = "red";
+          ctx.font = `${h.size}px serif`;
+          ctx.fillText("❤️", h.x, h.y);
+        });
+        requestAnimationFrame(animate);
+      }
+  
+      heartCanvas.width = window.innerWidth;
+      heartCanvas.height = window.innerHeight;
+      animate();
     }
-
-    startBtn.addEventListener('click', () => {
-      papers[0].classList.add('show');
-      startBtn.remove();
+  
+    // Observe when birthday message paper appears
+    const birthdayPaper = document.getElementById('birthday-paper');
+  
+    const birthdayObserver = new MutationObserver(() => {
+      if (birthdayPaper.classList.contains('show') && !confettiTriggered) {
+        confettiTriggered = true;
+        launchConfetti();
+        birthdayAudio.play().catch(err => {
+          console.warn('Autoplay failed:', err);
+        });
+      }
     });
-
+  
+    birthdayObserver.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
+  
+    // Observe when image paper appears (after birthday)
+    const imagePaper = document.querySelectorAll('.paper.image')[1];
+  
+    const imageObserver = new MutationObserver(() => {
+      if (imagePaper.classList.contains('show') && !heartEffectTriggered) {
+        heartEffectTriggered = true;
+        drawHearts();
+      }
+    });
+  
+    imageObserver.observe(imagePaper, { attributes: true, attributeFilter: ['class'] });
+  
+    // Drag logic to reveal papers
     const enableDragging = (paper, index) => {
       let isDragging = false;
       let startX, startY, initX, initY;
       let nextRevealed = false;
-
       const threshold = 50;
-
+  
       const onStart = (e) => {
         isDragging = true;
         nextRevealed = false;
@@ -217,21 +282,21 @@
         startY = clientY;
         initX = paper.offsetLeft;
         initY = paper.offsetTop;
-
+  
         paper.style.zIndex = 500 + index;
         e.preventDefault();
       };
-
+  
       const onMove = (e) => {
         if (!isDragging) return;
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         const deltaX = clientX - startX;
         const deltaY = clientY - startY;
-
+  
         paper.style.left = `${initX + deltaX}px`;
         paper.style.top = `${initY + deltaY}px`;
-
+  
         if (!nextRevealed && (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold)) {
           nextRevealed = true;
           const nextIndex = index + 1;
@@ -241,20 +306,15 @@
             nextPaper.style.zIndex = 1000 + nextIndex;
             nextPaper.style.left = '50%';
             nextPaper.style.top = '50%';
-
-            // Check if it's the birthday paper
-            if (nextPaper.id === 'birthday-paper') {
-              triggerCelebration();
-            }
           }
         }
       };
-
+  
       const onEnd = () => {
         if (!isDragging) return;
         isDragging = false;
       };
-
+  
       paper.addEventListener('mousedown', onStart);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
@@ -262,8 +322,9 @@
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend', onEnd);
     };
-
+  
     papers.forEach((paper, index) => enableDragging(paper, index));
   </script>
+  
 </body>
 </html>
