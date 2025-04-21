@@ -149,10 +149,20 @@
   <div class="paper"><p>You are my everything 🤗 You’re not just a part of my day</p></div>
   <div class="paper"><p>You are the reason my day feels complete 🥰😊</p></div>
   <div class="paper"><p>Today is a very special day for you and for me too because... </p></div>
-  <div class="paper"><p>Today you got this world and for me, I got my world which is you 🫵🥹</p></div>
+  <div class="paper"><p>Today you got this world and for me, I got my world which is you 🫵🥹</p><p>......-></p></div>
+
+  <div class="paper image" id="audio-message">
+    <p>Tap play to hear a song sung by your daddy 💌</p>
+    <p>......-></p>
+    <audio controls>
+      <source src="F:\Anshul\Python\My_Projects\HTML\Audio 1.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
 
   <div class="paper image" id="birthday-paper">
     <p>Wishing you a very very Happy Birthday my cutie sweetie darshu! Keep smiling and be happy... May this year be filled with success, growth, great moments, new opportunities, and strong connections. God bless you 💝🫶🥹👰‍♀️🧿🧿🧿</p>
+    <p>.......-></p>
   </div>
 
   <div class="paper image">
@@ -163,7 +173,6 @@
 
   <canvas id="heartCanvas"></canvas>
 
-  <!-- Audio Element -->
   <audio id="birthday-audio" preload="auto">
     <source src="https://www.chosic.com/wp-content/uploads/2021/11/Good_Morning_to_All(chosic.com).mp3" type="audio/mpeg">
   </audio>
@@ -175,24 +184,25 @@
     const startBtn = document.getElementById('startBtn');
     const birthdayAudio = document.getElementById('birthday-audio');
     const heartCanvas = document.getElementById('heartCanvas');
-  
+    const backgroundMusic = new Audio("https://www.chosic.com/wp-content/uploads/2021/11/Good_Morning_to_All(chosic.com).mp3");
     let confettiTriggered = false;
-    let heartEffectTriggered = false;
-  
-    // Start the first paper
+
     startBtn.addEventListener('click', () => {
       papers[0].classList.add('show');
       startBtn.remove();
+      birthdayAudio.play().then(() => {
+        birthdayAudio.pause();
+        birthdayAudio.currentTime = 0;
+      }).catch(() => {});
     });
-  
-    // Confetti logic
+
     const configs = [
       { angle: 90, origin: { x: 0.5, y: 0.9 } },
       { angle: 270, origin: { x: 0.5, y: 0 } },
       { angle: 180, origin: { x: 1.1, y: 0.5 } },
       { angle: 360, origin: { x: -0.1, y: 0.5 } },
     ];
-  
+
     function launchConfetti() {
       configs.forEach((cfg, i) => {
         setTimeout(() => {
@@ -208,12 +218,10 @@
         }, i * 700);
       });
     }
-  
-    // Heart animation logic
+
     function drawHearts() {
       const ctx = heartCanvas.getContext('2d');
       const hearts = [];
-  
       for (let i = 0; i < 30; i++) {
         hearts.push({
           x: Math.random() * window.innerWidth,
@@ -223,7 +231,7 @@
           opacity: Math.random() * 0.5 + 0.5
         });
       }
-  
+
       function animate() {
         ctx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
         hearts.forEach(h => {
@@ -235,46 +243,30 @@
         });
         requestAnimationFrame(animate);
       }
-  
+
       heartCanvas.width = window.innerWidth;
       heartCanvas.height = window.innerHeight;
       animate();
     }
-  
-    // Observe when birthday message paper appears
+
     const birthdayPaper = document.getElementById('birthday-paper');
-  
+
     const birthdayObserver = new MutationObserver(() => {
       if (birthdayPaper.classList.contains('show') && !confettiTriggered) {
         confettiTriggered = true;
         launchConfetti();
-        birthdayAudio.play().catch(err => {
-          console.warn('Autoplay failed:', err);
-        });
+        backgroundMusic.play();
       }
     });
-  
+
     birthdayObserver.observe(birthdayPaper, { attributes: true, attributeFilter: ['class'] });
-  
-    // Observe when image paper appears (after birthday)
-    const imagePaper = document.querySelectorAll('.paper.image')[1];
-  
-    const imageObserver = new MutationObserver(() => {
-      if (imagePaper.classList.contains('show') && !heartEffectTriggered) {
-        heartEffectTriggered = true;
-        drawHearts();
-      }
-    });
-  
-    imageObserver.observe(imagePaper, { attributes: true, attributeFilter: ['class'] });
-  
-    // Drag logic to reveal papers
+
     const enableDragging = (paper, index) => {
       let isDragging = false;
       let startX, startY, initX, initY;
       let nextRevealed = false;
       const threshold = 50;
-  
+
       const onStart = (e) => {
         isDragging = true;
         nextRevealed = false;
@@ -284,21 +276,33 @@
         startY = clientY;
         initX = paper.offsetLeft;
         initY = paper.offsetTop;
-  
         paper.style.zIndex = 500 + index;
         e.preventDefault();
+
+        // Check if the dragged paper is the audio-message paper and if audio is playing
+        if (paper.id === 'audio-message') {
+          const audio = paper.querySelector('audio');
+          if (audio && !audio.paused) {
+            audio.pause(); // Stop the audio if it's playing
+            audio.currentTime = 0; // Reset the audio to the beginning
+          }
+        }
       };
-  
+
       const onMove = (e) => {
         if (!isDragging) return;
         const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
         const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
         const deltaX = clientX - startX;
         const deltaY = clientY - startY;
-  
         paper.style.left = `${initX + deltaX}px`;
         paper.style.top = `${initY + deltaY}px`;
-  
+
+        // Trigger vibration on mobile devices when dragging
+        if (navigator.vibrate) {
+          navigator.vibrate(50); // Vibrates for 50ms
+        }
+
         if (!nextRevealed && (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold)) {
           nextRevealed = true;
           const nextIndex = index + 1;
@@ -308,15 +312,19 @@
             nextPaper.style.zIndex = 1000 + nextIndex;
             nextPaper.style.left = '50%';
             nextPaper.style.top = '50%';
+
+            // 💖 Heart effect when birthday-paper is dragged
+            if (papers[index].id === 'birthday-paper') {
+              drawHearts();
+              backgroundMusic.pause(); // Stop background music when paper is dragged
+              backgroundMusic.currentTime = 0;
+            }
           }
         }
       };
-  
-      const onEnd = () => {
-        if (!isDragging) return;
-        isDragging = false;
-      };
-  
+
+      const onEnd = () => { isDragging = false; };
+
       paper.addEventListener('mousedown', onStart);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('mouseup', onEnd);
@@ -324,9 +332,9 @@
       document.addEventListener('touchmove', onMove, { passive: false });
       document.addEventListener('touchend', onEnd);
     };
-  
+
     papers.forEach((paper, index) => enableDragging(paper, index));
   </script>
-  
+
 </body>
 </html>
